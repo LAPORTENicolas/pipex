@@ -26,9 +26,9 @@ check_leak() {
 	printf "$BLUE Memory leak:"
 	if ! grep -sq 'LEAK SUMMARY:' memoire.log; then
 		#if grep -sq 'All heap blocks were freed -- no leaks are possible' memoire.log; then
-		printf "$GREEN No leak\n"
+		printf "$GREEN c bon\n"
 	else
-		printf "$RED Leak detected\n"
+		printf "$RED ca leak\n"
 		((COMPTEUR = COMPTEUR + 1))
 	fi
 }
@@ -62,9 +62,6 @@ check_result() {
 	check_return
 	printf "${WHITE}\n"
 }
-
-## PART 1 BASIC TEST
-printf "PART 1: Basic tests\n\n"
 
 reset_file
 printf "$BLUE Test 01: $WHITE $INFILE < ls | wc -l > $OUTFILE\n"
@@ -694,4 +691,187 @@ rm big
 exec 2>/dev/tty
 check_result
 
-printf "Error total: $COMPTEUR"
+printf "\n$ORANGE[BONUS]$WHITE Test pipex here_doc\n\n"
+
+reset_file
+printf "$ORANGE Test 0: $WHITE cat -e <<EOF | cat -e >> $OUTFILE\n"
+cat -e <<EOF | cat -e >>$REAL_OUTFILE
+$(cat infile2)
+EOF
+REAL_RETURN=$?
+printf "$(cat infile2)\nEOF" | $VALGRIND ./pipex here_doc "EOF" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile2)\nEOF" | ./pipex here_doc EOF "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+reset_file
+printf "$ORANGE Test 1: $WHITE cat -e <<EOF | cat -e > $OUTFILE\n"
+cat -e <<EOF | cat -e >$REAL_OUTFILE
+$(cat infile)
+EOF
+REAL_RETURN=$?
+printf "$(cat infile)\nEOF" | $VALGRIND ./pipex here_doc "EOF" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile)\nEOF" | ./pipex here_doc EOF "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+reset_file
+printf "$ORANGE Test 2: $WHITE cat -e <<EOF | cat -e >> $OUTFILE\n"
+cat -e <<EOF | cat -e >>$REAL_OUTFILE
+Bonjour
+comment
+?
+EOF
+REAL_RETURN=$?
+exec 2>/dev/null
+$VALGRIND printf "Bonjour
+comment
+?
+EOF" | ./pipex here_doc "EOF" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+exec 2>/dev/tty
+printf "Bonjour
+comment
+?
+EOF" | ./pipex here_doc EOF "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+reset_file
+printf "$ORANGE Test 3: $WHITE cat -e <<EOF | cat -e >> $OUTFILE\n"
+cat -e <<EOF | cat -e >>$REAL_OUTFILE
+$(printf "$(cat infile)")EOF
+EOF
+REAL_RETURN=$?
+printf "$(cat infile)EOF\nEOF" | $VALGRIND ./pipex here_doc "EOF" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile)EOF\nEOF" | ./pipex here_doc EOF "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+reset_file
+printf "$ORANGE Test 4: $WHITE cat -e <<EOF | cat -e >> $OUTFILE\n"
+exec 2>/dev/null
+cat -e <<EOF | cat -e >>$REAL_OUTFILE
+$(printf "$(cat infile)")EOF
+EOF
+REAL_RETURN=$?
+EOF
+EOF
+printf "$(cat infile)EOF\nEOF\nEOF\nEOF" | $VALGRIND ./pipex here_doc "EOF" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile)EOF\nEOF\nEOF\nEOF" | ./pipex here_doc EOF "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+exec 2>/dev/tty
+check_result
+
+reset_file
+printf "$ORANGE Test 5: $WHITE cat -e <<EOF | cat -e >> $OUTFILE\n"
+exec 2>/dev/null
+cat -e <<EOF | cat -e >>$REAL_OUTFILE
+$(printf "$(cat infile)")EOF
+EOF
+REAL_RETURN=$?
+EOF
+EOF
+printf "$(cat infile)EOF\nEOF\nEOF\nEOF" | $VALGRIND ./pipex here_doc "EOF" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile)EOF\nEOF\nEOF\nEOF" | ./pipex here_doc EOF "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+exec 2>/dev/tty
+check_result
+
+reset_file
+printf "$ORANGE Test 6: $WHITE cat -e <<EOF | cat -e >> $OUTFILE\n"
+exec 2>/dev/null
+cat -e <<EOF | cat -e >>$REAL_OUTFILE
+EOF
+REAL_RETURN=$?
+$(printf "$(cat infile)")EOF
+EOF
+EOF
+EOF
+printf "EOF\n$(cat infile)EOF\nEOF\nEOF\nEOF" | $VALGRIND ./pipex here_doc "EOF" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "EOF\n$(cat infile)EOF\nEOF\nEOF\nEOF" | ./pipex here_doc EOF "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+exec 2>/dev/tty
+check_result
+
+reset_file
+printf "$ORANGE Test 7: $WHITE cat -e <<END | cat -e >> $OUTFILE\n"
+cat -e <<END | cat -e >>$REAL_OUTFILE
+$(printf "$(cat infile)")END
+END
+REAL_RETURN=$?
+printf "$(cat infile)END\nEND" | $VALGRIND ./pipex here_doc "END" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile)END\nEND" | ./pipex here_doc END "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+reset_file
+printf "$ORANGE Test 8: $WHITE cat -e <<LIMITER | cat -e >> $OUTFILE\n"
+cat -e <<LIMITER | cat -e >>$REAL_OUTFILE
+$(printf "$(cat infile)")LIMITER
+LIMITER
+REAL_RETURN=$?
+printf "$(cat infile)LIMITER\nLIMITER" | $VALGRIND ./pipex here_doc "LIMITER" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile)LIMITER\nLIMITER" | ./pipex here_doc LIMITER "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+reset_file
+printf "$ORANGE Test 9: $WHITE cat -e <<LIMITER | cat -e >> $OUTFILE\n"
+cat -e <<LIMITER | cat -e >>$REAL_OUTFILE
+bjrLIMITER
+bjr
+LIMITER
+REAL_RETURN=$?
+printf "bjrLIMITER\nbjr\nLIMITER" | $VALGRIND ./pipex here_doc "LIMITER" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "bjrLIMITER\nbjr\nLIMITER" | ./pipex here_doc LIMITER "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+printf "$ORANGE Test 10: $WHITE cat -e <<LIMITER | cat -e >> $OUTFILE\n"
+cat -e <<LIMITER | cat -e >>$REAL_OUTFILE
+$(printf "$(cat infile2)")LIMITER
+LIMITER
+REAL_RETURN=$?
+printf "$(cat infile2)LIMITER\nLIMITER" | $VALGRIND ./pipex here_doc "LIMITER" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile2)LIMITER\nLIMITER" | ./pipex here_doc LIMITER "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+reset_file
+printf "$ORANGE Test 11: $WHITE cat -e <<LIMITER | cat -e >> $OUTFILE\n"
+cat -e <<LIMITER | cat -e >>$REAL_OUTFILE
+$(printf "$(cat infile4)")LIMITER
+LIMITER
+REAL_RETURN=$?
+printf "$(cat infile4)LIMITER\nLIMITER" | $VALGRIND ./pipex here_doc "LIMITER" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile4)LIMITER\nLIMITER" | ./pipex here_doc LIMITER "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+printf "$ORANGE Test 12: $WHITE cat -e <<LIMITER | cat -e >> $OUTFILE\n"
+cat -e <<LIMITER | cat -e >>$REAL_OUTFILE
+$(printf "$(cat infile4)")LIMITER
+LIMITER
+REAL_RETURN=$?
+printf "$(cat infile4)LIMITER\nLIMITER" | $VALGRIND ./pipex here_doc "LIMITER" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile4)LIMITER\nLIMITER" | ./pipex here_doc LIMITER "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+printf "$ORANGE Test 13: $WHITE cat -e <<LIMITER | cat -e >> $OUTFILE\n"
+cat -e <<LIMITER | cat -e >>$REAL_OUTFILE
+$(printf "$(cat infile4)")LIMITER
+LIMITER
+REAL_RETURN=$?
+printf "$(cat infile4)LIMITER\nLIMITER" | $VALGRIND ./pipex here_doc "LIMITER" "cat -e" "cat -e" /dev/null 2>&1 | tee memoire.log >/dev/null
+printf "$(cat infile4)LIMITER\nLIMITER" | ./pipex here_doc LIMITER "cat -e" "cat -e" $OUTFILE
+PIPEX_RETURN=$?
+check_result
+
+if [ $COMPTEUR -gt 0 ]; then
+	printf "$RED Error total: $COMPTEUR"
+	exit
+fi
+
+printf "$GREEN"
+cat .success

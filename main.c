@@ -39,10 +39,14 @@ void	main_utils(t_env *pipex)
 
 void	read_stdin(t_env *pipex, char *limiter)
 {
+	pid_t	tmp;
 	char	*str;
 
 	pipex->input = -2;
 	str = NULL;
+	tmp = fork();
+	if (tmp != 0)
+		return ;
 	while (1)
 	{
 		if (str)
