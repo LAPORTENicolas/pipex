@@ -50,6 +50,7 @@ void	exec_cmd(t_env *pipex, int i, char **env)
 			ft_strncmp("read", pipex->commands[i].cmd, 5) != 0)
 			pipex->exit_code = 127;
 		free(tmp);
+		ft_printerror(pipex->commands[i].cmd);
 		exit_pipex(pipex, NULL, 1);
 	}
 	free(tmp);

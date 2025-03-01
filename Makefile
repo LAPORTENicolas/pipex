@@ -37,9 +37,9 @@ libft:
 		printf  "${ORANGE}Pas de libft, telechargement ...${WHITE}\n"; \
 		(git clone https://github.com/LAPORTENicolas/libft.git libft > /dev/null 2>&1); \
 	fi
-	@printf  "${GREEN}✅ Libft, a jour !\n"; \
+	@printf  "${GREEN}✅ Libft, a jour !\n"
 	${MAKE} -C ${LIBFT}
-	printf  ""; \
+	printf  ""
 
 gnl:
 	@if [ -f "gnl" ]; then \

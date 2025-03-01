@@ -205,7 +205,8 @@ REAL_RETURN=$?
 $VALGRIND ./pipex $INFILE "cat -e" "cat -e" $OUTFILE 2>&1 | tee memoire.log >/dev/null
 ./pipex $INFILE "cat -e" "cat -e" $OUTFILE
 PIPEX_RETURN=$?
-check_result
+check_leak
+check_return
 
 reset_file
 printf "$BLUE Test 15: $WHITE $INFILE < fake_cmd | cat -e > $OUTFILE\n"
