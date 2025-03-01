@@ -54,9 +54,9 @@ int	wait_pipex(void)
 	pid[1] = 0;
 	while (pid[0] > 0)
 	{
-		if (pid[1] == 0 || (WIFEXITED(status) && pid[0] > pid[1]))
+		if (pid[1] == 0 || (pid[0] > pid[1]))
 		{
-			end = WEXITSTATUS(status);
+			end = (status >> 8) & 0xff;
 			pid[1] = pid[0];
 		}
 		pid[0] = wait(&status);
