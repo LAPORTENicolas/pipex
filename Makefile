@@ -57,9 +57,6 @@ clean:
 
 fclean: clean
 	@printf  "${ORANGE}⏳ Supression executale pipex\n"
-	@if [ -d "${LIBFT}" ]; then \
-		${MAKE} -C ${LIBFT} fclean > /dev/null; \
-	fi
 	@rm -rf ${NAME}
 
 reset: fclean
